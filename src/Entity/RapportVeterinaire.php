@@ -20,6 +20,12 @@ class RapportVeterinaire
     #[ORM\Column(length: 50)]
     private ?string $detail = null;
 
+    #[ORM\OneToOne(mappedBy: 'rapportveterinaire', cascade: ['persist', 'remove'])]
+    private ?Obtient $obtient = null;
+
+    #[ORM\OneToOne(mappedBy: 'rapportveterinaire', cascade: ['persist', 'remove'])]
+    private ?Redige $redige = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -45,6 +51,40 @@ class RapportVeterinaire
     public function setDetail(string $detail): static
     {
         $this->detail = $detail;
+
+        return $this;
+    }
+
+    public function getObtient(): ?Obtient
+    {
+        return $this->obtient;
+    }
+
+    public function setObtient(Obtient $obtient): static
+    {
+        // set the owning side of the relation if necessary
+        if ($obtient->getRapportveterinaire() !== $this) {
+            $obtient->setRapportveterinaire($this);
+        }
+
+        $this->obtient = $obtient;
+
+        return $this;
+    }
+
+    public function getRedige(): ?Redige
+    {
+        return $this->redige;
+    }
+
+    public function setRedige(Redige $redige): static
+    {
+        // set the owning side of the relation if necessary
+        if ($redige->getRapportveterinaire() !== $this) {
+            $redige->setRapportveterinaire($this);
+        }
+
+        $this->redige = $redige;
 
         return $this;
     }

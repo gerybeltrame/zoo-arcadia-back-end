@@ -16,6 +16,10 @@ class Race
     #[ORM\Column(length: 50)]
     private ?string $label = null;
 
+    #[ORM\ManyToOne(inversedBy: 'race')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Dispose $dispose = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -29,6 +33,18 @@ class Race
     public function setLabel(string $label): static
     {
         $this->label = $label;
+
+        return $this;
+    }
+
+    public function getDispose(): ?Dispose
+    {
+        return $this->dispose;
+    }
+
+    public function setDispose(?Dispose $dispose): static
+    {
+        $this->dispose = $dispose;
 
         return $this;
     }

@@ -16,6 +16,10 @@ class Role
     #[ORM\Column(length: 50)]
     private ?string $label = null;
 
+    #[ORM\ManyToOne(inversedBy: 'role')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Possede $possede = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -29,6 +33,18 @@ class Role
     public function setLabel(string $label): static
     {
         $this->label = $label;
+
+        return $this;
+    }
+
+    public function getPossede(): ?Possede
+    {
+        return $this->possede;
+    }
+
+    public function setPossede(?Possede $possede): static
+    {
+        $this->possede = $possede;
 
         return $this;
     }

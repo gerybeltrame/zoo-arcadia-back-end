@@ -13,8 +13,24 @@ class Image
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\ManyToOne(inversedBy: 'images')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?comporte $comporte = null;
+
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getComporte(): ?comporte
+    {
+        return $this->comporte;
+    }
+
+    public function setComporte(?comporte $comporte): static
+    {
+        $this->comporte = $comporte;
+
+        return $this;
     }
 }
