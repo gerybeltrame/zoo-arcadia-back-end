@@ -17,6 +17,10 @@ class Redige
     #[ORM\JoinColumn(nullable: false)]
     private ?rapportveterinaire $rapportveterinaire = null;
 
+    #[ORM\ManyToOne(inversedBy: 'redige')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Utilisateur $utilisateur = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -30,6 +34,18 @@ class Redige
     public function setRapportveterinaire(rapportveterinaire $rapportveterinaire): static
     {
         $this->rapportveterinaire = $rapportveterinaire;
+
+        return $this;
+    }
+
+    public function getUtilisateur(): ?Utilisateur
+    {
+        return $this->utilisateur;
+    }
+
+    public function setUtilisateur(?Utilisateur $utilisateur): static
+    {
+        $this->utilisateur = $utilisateur;
 
         return $this;
     }

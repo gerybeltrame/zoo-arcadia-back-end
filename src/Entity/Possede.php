@@ -21,6 +21,9 @@ class Possede
     #[ORM\OneToMany(targetEntity: role::class, mappedBy: 'possede', orphanRemoval: true)]
     private Collection $role;
 
+    #[ORM\OneToOne(mappedBy: 'possede', cascade: ['persist', 'remove'])]
+    private ?Utilisateur $utilisateur = null;
+
     public function __construct()
     {
         $this->role = new ArrayCollection();
@@ -57,6 +60,23 @@ class Possede
                 $role->setPossede(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUtilisateur(): ?Utilisateur
+    {
+        return $this->utilisateur;
+    }
+
+    public function setUtilisateur(Utilisateur $utilisateur): static
+    {
+        // set the owning side of the relation if necessary
+        if ($utilisateur->getPossede() !== $this) {
+            $utilisateur->setPossede($this);
+        }
+
+        $this->utilisateur = $utilisateur;
 
         return $this;
     }
