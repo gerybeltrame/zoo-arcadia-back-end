@@ -49,6 +49,9 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: redige::class, mappedBy: 'utilisateur')]
     private Collection $redige;
 
+    #[ORM\Column(length: 255)]
+    private ?string $apiToken = null;
+
     public function __construct()
     {
         $this->redige = new ArrayCollection();
@@ -191,6 +194,18 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
                 $redige->setUtilisateur(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getApiToken(): ?string
+    {
+        return $this->apiToken;
+    }
+
+    public function setApiToken(string $apiToken): static
+    {
+        $this->apiToken = $apiToken;
 
         return $this;
     }
