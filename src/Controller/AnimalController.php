@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Response;
 use App\Entity\Animal;
+use App\Repository\AnimalRepository;
 
 #[Route('api/animal', name: 'app_animal_')]
 
@@ -25,8 +26,16 @@ class AnimalController extends AbstractController
     }
 
     #[Route('/', name: 'show', methods: ['GET'])]
-    public function show(): Response
+    public function show(int $id, AnimalRepository $repository): Response
     {
+        $animal = $this->$repository->findOneBy(['id'=>$id]);
+        if (!$animal) {
+            throw $this->createNotFoundException("No animal found for {$id} id");
+        }
+
+        return $this->json(
+            ['message' => "An animal was found : {$animal->getprenom()} is {$animal->getetat()} for {$animal->getId()} id"]
+        );
 
     }
 

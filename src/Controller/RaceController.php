@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Response;
 use App\Entity\Race;
+use App\Repository\RaceRepository;
 
 #[Route('api/race', name: 'app_race_')]
 class RaceController extends AbstractController
@@ -22,8 +23,16 @@ class RaceController extends AbstractController
     }
 
     #[Route('/', name: 'show', methods: ['GET'])]
-    public function show(): Response
+    public function show(int $id, RaceRepository $repository): Response
     {
+        $race = $this->$repository->findOneBy(['id'=>$id]);
+        if (!$race) {
+            throw $this->createNotFoundException("No Race found for {$id} id");
+        }
+
+        return $this->json(
+            ['message' => "A Race was found : {$race->getlabel()} for {$race->getId()} id"]
+        );
 
     }
 

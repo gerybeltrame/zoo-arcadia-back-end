@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Response;
 use App\Entity\RapportVeterinaire;
+use App\Repository\RapportVeterinaireRepository;
 use DateTimeImmutable;
 
 #[Route('api/rapportVeterinaire', name: 'app_rapportVeterinaire_')]
@@ -24,8 +25,16 @@ class RapportVeterinaireController extends AbstractController
     }
 
     #[Route('/', name: 'show', methods: ['GET'])]
-    public function show(): Response
+    public function show(int $id, RapportVeterinaireRepository $repository): Response
     {
+        $rapportveterinaire = $this->$repository->findOneBy(['id'=>$id]);
+        if (!$rapportveterinaire) {
+            throw $this->createNotFoundException("No Rapport du vétérinaire found for {$id} id");
+        }
+
+        return $this->json(
+            ['message' => "A Rapport du vétérinaire was found : the {$rapportveterinaire->getdate()} for {$rapportveterinaire->getId()} id"]
+        );
 
     }
 
