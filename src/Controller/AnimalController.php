@@ -8,11 +8,15 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Response;
 use App\Entity\Animal;
 use App\Repository\AnimalRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
 #[Route('api/animal', name: 'app_animal_')]
 
 class AnimalController extends AbstractController
 {
+    public function __construct(private AnimalRepository $repository, private EntityManagerInterface $manager)
+    {
+    }
     #[Route(name: 'new', methods: ['POST'])]
     public function new(): Response
     {
@@ -25,7 +29,7 @@ class AnimalController extends AbstractController
 
     }
 
-    #[Route('/', name: 'show', methods: ['GET'])]
+    #[Route('/{id}', name: 'show', methods: ['GET'])]
     public function show(int $id, AnimalRepository $repository): Response
     {
         $animal = $this->$repository->findOneBy(['id'=>$id]);
@@ -39,15 +43,35 @@ class AnimalController extends AbstractController
 
     }
 
-    #[Route('/', name: 'edit', methods: ['PUT'])]
-    public function edit(): JsonResponse
+    #[Route('/{id}', name: 'edit', methods: ['PUT'])]
+    public function edit(int $id): Response
     {
+        $animal = $this->repository->findOneBy(['id' => $id]);
+
+        if (!$animal) {
+            throw $this->createNotFoundException("No Animal found for {$id} id");
+        }
+        
+        $animal->setprenom('Animal prenom updated');
+        $animal->setetat('Animal etat updated');
+        $this->manager->flush();
+
+        return $this->redirectToRoute('app_api_animal_show', ['id' => $animal->getId()]);
 
     }
 
-    #[Route('/', name: 'delete', methods: ['DELETE'])]
-    public function delete(): JsonResponse
+    #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
+    public function delete(int $id): Response
     {
+        $animal = $this->repository->findOneBy(['id' => $id]);
+        if (!$animal) {
+            throw $this->createNotFoundException("No Animal found for {$id} id");
+        }
+
+        $this->manager->remove($animal);
+        $this->manager->flush();
+
+        return $this->json(['message' => "Animal resource deleted"], Response::HTTP_NO_CONTENT);
 
     }
 }

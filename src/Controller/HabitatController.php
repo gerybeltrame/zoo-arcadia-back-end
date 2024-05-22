@@ -9,10 +9,14 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Response;
 use App\Entity\Habitat;
 use App\Repository\HabitatRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
 #[Route('api/habitat', name: 'app_habitat_')]
 class HabitatController extends AbstractController
 {
+    public function __construct(private HabitatRepository $repository, private EntityManagerInterface $manager)
+    {
+    }
     #[Route(name: 'new', methods: ['POST'])]
     public function new(): Response
     {
@@ -26,7 +30,7 @@ class HabitatController extends AbstractController
 
     }
 
-    #[Route('/', name: 'show', methods: ['GET'])]
+    #[Route('/{id}', name: 'show', methods: ['GET'])]
     public function show(int $id, HabitatRepository $repository): Response
     {
         $habitat = $this->$repository->findOneBy(['id'=>$id]);
@@ -40,15 +44,36 @@ class HabitatController extends AbstractController
 
     }
 
-    #[Route('/', name: 'edit', methods: ['PUT'])]
-    public function edit(): Response
+    #[Route('/{id}', name: 'edit', methods: ['PUT'])]
+    public function edit(int $id): Response
     {
+        $habitat = $this->repository->findOneBy(['id' => $id]);
+
+        if (!$habitat) {
+            throw $this->createNotFoundException("No Habitat found for {$id} id");
+        }
+        
+        $habitat->setnom('Habitat nom updated');
+        $habitat->setdescription('Habitat description updated');
+        $habitat->setcommentaireHabitat('Habitat commentaireHabitat updated');
+        $this->manager->flush();
+
+        return $this->redirectToRoute('app_api_habitat_show', ['id' => $habitat->getId()]);
 
     }
 
-    #[Route('/', name: 'delete', methods: ['DELETE'])]
-    public function delete(): Response
+    #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
+    public function delete(int $id): Response
     {
+        $habitat = $this->repository->findOneBy(['id' => $id]);
+        if (!$habitat) {
+            throw $this->createNotFoundException("No Habitat found for {$id} id");
+        }
+
+        $this->manager->remove($habitat);
+        $this->manager->flush();
+
+        return $this->json(['message' => "Habitat resource deleted"], Response::HTTP_NO_CONTENT);
 
     }
 }
