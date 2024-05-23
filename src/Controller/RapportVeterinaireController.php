@@ -10,22 +10,35 @@ use App\Entity\RapportVeterinaire;
 use App\Repository\RapportVeterinaireRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('api/rapportVeterinaire', name: 'app_rapportVeterinaire_')]
 class RapportVeterinaireController extends AbstractController
 {
-    public function __construct(private RapportVeterinaireRepository $repository, private EntityManagerInterface $manager)
+    public function __construct(private RapportVeterinaireRepository $repository, private EntityManagerInterface $manager, private SerializerInterface $serializer, private UrlGeneratorInterface $urlGenerator)
     {
     }
     #[Route(name: 'new', methods: ['POST'])]
-    public function new(): Response
+    public function new(Request $request): Response
     {
+        $rapportVeterinaire = $this->serializer->deserialize($request->getContent(), RapportVeterinaire::class, 'json');
         $rapportVeterinaire = new RapportVeterinaire();
         $rapportVeterinaire->setdate(new DateTimeImmutable());
         $rapportVeterinaire->setdetail('');
 
-        return $this->json(
-            ['message' => "RapportVeterinaire ressource created with {$rapportVeterinaire->getId()} id"], Response::HTTP_CREATED);
+        $this->manager->persist($rapportVeterinaire);
+        $this->manager->flush();
+
+        $responseData = $this->serializer->serialize($rapportVeterinaire, 'json');
+        $location = $this->urlGenerator->generate(
+            'app_api_rapportveterinaire_show',
+            ['id' => $rapportVeterinaire->getId()],
+            UrlGeneratorInterface::ABSOLUTE_URL,
+        );
+
+        return new JsonResponse($responseData, Response::HTTP_CREATED, ["Location" => $location], true);
 
     }
 

@@ -9,20 +9,34 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Entity\Race;
 use App\Repository\RaceRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('api/race', name: 'app_race_')]
 class RaceController extends AbstractController
 {
-    public function __construct(private RaceRepository $repository, private EntityManagerInterface $manager)
+    public function __construct(private RaceRepository $repository, private EntityManagerInterface $manager, private SerializerInterface $serializer, private UrlGeneratorInterface $urlGenerator)
     {
     }
     #[Route(name: 'new', methods: ['POST'])]
-    public function new(): Response
+    public function new(Request $request): JsonResponse
     {
+        $race = $this->serializer->deserialize($request->getContent(), Race::class, 'json');
         $race = new Race();
         $race->setlabel('');
 
-        return $this->json(['message', "Race ressources created with {$race->getId()} id"], status: Response::HTTP_CREATED);
+        $this->manager->persist($race);
+        $this->manager->flush();
+
+        $responseData = $this->serializer->serialize($race, 'json');
+        $location = $this->urlGenerator->generate(
+            'app_api_restaurant_show',
+            ['id' => $race->getId()],
+            UrlGeneratorInterface::ABSOLUTE_URL,
+        );
+
+        return new JsonResponse($responseData, Response::HTTP_CREATED, ["Location" => $location], true);
 
     }
 
