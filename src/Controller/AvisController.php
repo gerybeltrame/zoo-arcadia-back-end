@@ -12,6 +12,7 @@ use App\Entity\Avis;
 use App\Repository\AvisRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 #[Route('apis/avis', name: 'app_api_avis_')]
 
@@ -20,7 +21,7 @@ class AvisController extends AbstractController
     public function __construct(private AvisRepository $repository, private EntityManagerInterface $manager, private SerializerInterface $serializer, private UrlGeneratorInterface $urlGenerator)
     {
     }
-    #[Route(name: 'new', methods: ['POST'])]
+    #[Route(methods: ['POST'])]
     public function new(Request $request): JsonResponse
     {
         $avis = $this->serializer->deserialize($request->getContent(), Avis::class, 'json');
@@ -44,34 +45,41 @@ class AvisController extends AbstractController
     }
 
     #[Route('/{id}', name: 'show', methods: ['GET'])]
-    public function show(int $id, AvisRepository $repository): Response
+    public function show(int $id): Response
     {
-        $avis = $this->$repository->findOneBy(['id'=>$id]);
+        $avis = $this->repository->findOneBy(['id'=>$id]);
         if (!$avis) {
-            throw $this->createNotFoundException("No avis found for {$id} id");
+            $responseData= $this->serializer->serialize($avis, 'json');
+
+            return new JsonResponse($responseData, Response::HTTP_OK, [], true);
         }
 
-        return $this->json(
-            ['message' => "An avis was found : from {$avis->getpseudo()} of {$avis->getId()} id is visible{$avis->getIsVisible()}"]
-        );
+        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 
     #[Route('/{id}', name: 'edit', methods: ['PUT'])]
-    public function edit(int $id): Response
+    public function edit(int $id, Request $request): Response
     {
         $avis = $this->repository->findOneBy(['id' => $id]);
 
         if (!$avis) {
-            throw $this->createNotFoundException("No Avis found for {$id} id");
-        }
-        
-        $avis->setpseudo('Avis pseudo updated');
-        $avis->setcommentaire('Avis commentaire updated');
-        $avis->setIsVisible('Avis isVisible updated');
-        $this->manager->flush();
+            $avis = $this->serializer->deserialize(
+                $request->getContent(), 
+                Avis::class, 
+                'json',
+                [AbstractNormalizer::OBJECT_TO_POPULATE => $avis]
+            );
 
-        return $this->redirectToRoute('app_api_avis_show', ['id' => $avis->getId()]);
+            $avis->setpseudo('Avis pseudo updated');
+            $avis->setcommentaire('Avis commentaire updated');
+            $avis->setIsVisible('Avis isVisible updated');
+            $this->manager->flush();
+
+            return New JsonResponse(data: null, status: Response::HTTP_NO_CONTENT);
+        }
+
+        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 

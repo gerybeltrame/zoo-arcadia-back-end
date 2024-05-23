@@ -12,6 +12,7 @@ use App\Entity\Animal;
 use App\Repository\AnimalRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 #[Route('api/animal', name: 'app_animal_')]
 
@@ -20,7 +21,7 @@ class AnimalController extends AbstractController
     public function __construct(private AnimalRepository $repository, private EntityManagerInterface $manager, private SerializerInterface $serializer, private UrlGeneratorInterface $urlGenerator)
     {
     }
-    #[Route(name: 'new', methods: ['POST'])]
+    #[Route(methods: ['POST'])]
     public function new(Request $request): JsonResponse
     {
         $animal = $this->serializer->deserialize($request->getContent(), Animal::class, 'json');
@@ -44,34 +45,39 @@ class AnimalController extends AbstractController
     }
 
     #[Route('/{id}', name: 'show', methods: ['GET'])]
-    public function show(int $id, AnimalRepository $repository): Response
+    public function show(int $id): JsonResponse
     {
-        $animal = $this->$repository->findOneBy(['id'=>$id]);
+        $animal = $this->repository->findOneBy(['id'=>$id]);
         if (!$animal) {
-            throw $this->createNotFoundException("No animal found for {$id} id");
+            $responseData= $this->serializer->serialize($animal, 'json');
+
+            return new JsonResponse($responseData, Response::HTTP_OK, [], true);
         }
 
-        return $this->json(
-            ['message' => "An animal was found : {$animal->getprenom()} is {$animal->getetat()} for {$animal->getId()} id"]
-        );
-
+        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
     }
 
     #[Route('/{id}', name: 'edit', methods: ['PUT'])]
-    public function edit(int $id): Response
+    public function edit(int $id, Request $request): JsonResponse
     {
         $animal = $this->repository->findOneBy(['id' => $id]);
 
         if (!$animal) {
-            throw $this->createNotFoundException("No Animal found for {$id} id");
+            $animal = $this->serializer->deserialize(
+                $request->getContent(), 
+                Animal::class, 
+                'json',
+                [AbstractNormalizer::OBJECT_TO_POPULATE => $animal]
+            );
+
+            $animal->setprenom('Animal prenom updated');
+            $animal->setetat('Animal etat updated');
+            $this->manager->flush();
+
+            return New JsonResponse(data: null, status: Response::HTTP_NO_CONTENT);
         }
-        
-        $animal->setprenom('Animal prenom updated');
-        $animal->setetat('Animal etat updated');
-        $this->manager->flush();
 
-        return $this->redirectToRoute('app_api_animal_show', ['id' => $animal->getId()]);
-
+        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
     }
 
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]

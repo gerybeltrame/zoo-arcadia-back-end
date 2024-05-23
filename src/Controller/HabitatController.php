@@ -13,6 +13,7 @@ use App\Repository\HabitatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 #[Route('api/habitat', name: 'app_habitat_')]
 class HabitatController extends AbstractController
@@ -20,7 +21,7 @@ class HabitatController extends AbstractController
     public function __construct(private HabitatRepository $repository, private EntityManagerInterface $manager, private SerializerInterface $serializer, private UrlGeneratorInterface $urlGenerator)
     {
     }
-    #[Route(name: 'new', methods: ['POST'])]
+    #[Route(methods: ['POST'])]
     public function new(Request $request): JsonResponse
     {
         $habitat = $this->serializer->deserialize($request->getContent(), Habitat::class, 'json');
@@ -44,34 +45,41 @@ class HabitatController extends AbstractController
     }
 
     #[Route('/{id}', name: 'show', methods: ['GET'])]
-    public function show(int $id, HabitatRepository $repository): Response
+    public function show(int $id): Response
     {
-        $habitat = $this->$repository->findOneBy(['id'=>$id]);
+        $habitat = $this->repository->findOneBy(['id'=>$id]);
         if (!$habitat) {
-            throw $this->createNotFoundException("No habitat found for {$id} id");
+            $responseData= $this->serializer->serialize($habitat, 'json');
+
+            return new JsonResponse($responseData, Response::HTTP_OK, [], true);
         }
 
-        return $this->json(
-            ['message' => "A habitat was found : {$habitat->getnom()} for {$habitat->getId()} id"]
-        );
+        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 
     #[Route('/{id}', name: 'edit', methods: ['PUT'])]
-    public function edit(int $id): Response
+    public function edit(int $id, Request $request): Response
     {
         $habitat = $this->repository->findOneBy(['id' => $id]);
 
         if (!$habitat) {
-            throw $this->createNotFoundException("No Habitat found for {$id} id");
-        }
-        
-        $habitat->setnom('Habitat nom updated');
-        $habitat->setdescription('Habitat description updated');
-        $habitat->setcommentaireHabitat('Habitat commentaireHabitat updated');
-        $this->manager->flush();
+            $habitat = $this->serializer->deserialize(
+                $request->getContent(), 
+                Habitat::class, 
+                'json',
+                [AbstractNormalizer::OBJECT_TO_POPULATE => $habitat]
+            );
 
-        return $this->redirectToRoute('app_api_habitat_show', ['id' => $habitat->getId()]);
+            $habitat->setnom('Habitat nom updated');
+            $habitat->setdescription('Habitat description updated');
+            $habitat->setcommentaireHabitat('Habitat commentaireHabitat updated');
+            $this->manager->flush();
+
+            return New JsonResponse(data: null, status: Response::HTTP_NO_CONTENT);
+        }
+
+        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 

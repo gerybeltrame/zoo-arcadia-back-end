@@ -12,6 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 #[Route('api/utilisateur', name: 'app_utilisateur_')]
 class UtilisateurController extends AbstractController
@@ -19,7 +20,7 @@ class UtilisateurController extends AbstractController
     public function __construct(private UtilisateurRepository $repository, private EntityManagerInterface $manager, private SerializerInterface $serializer, private UrlGeneratorInterface $urlGenerator)
     {
     }
-    #[Route(name: 'new', methods: ['POST'])]
+    #[Route(methods: ['POST'])]
     public function new(Request $request): JsonResponse
     {
         $utilisateur = $this->serializer->deserialize($request->getContent(), Utilisateur::class, 'json');
@@ -42,39 +43,46 @@ class UtilisateurController extends AbstractController
 
     }
 
-    #[Route('/', name: 'show', methods: ['GET'])]
-    public function show(int $id, UtilisateurRepository $repository): Response
+    #[Route('/{id}', name: 'show', methods: ['GET'])]
+    public function show(int $id): Response
     {
-        $utilisateur = $this->$repository->findOneBy(['id'=>$id]);
+        $utilisateur = $this->repository->findOneBy(['id'=>$id]);
         if (!$utilisateur) {
-            throw $this->createNotFoundException("No utilisateur found for {$id} id");
+            $responseData= $this->serializer->serialize($utilisateur, 'json');
+
+            return new JsonResponse($responseData, Response::HTTP_OK, [], true);
         }
 
-        return $this->json(
-            ['message' => "An utilisateur was found : {$utilisateur->getnom()} for {$utilisateur->getId()} id"]
-        );
+        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 
-    #[Route('/', name: 'edit', methods: ['PUT'])]
-    public function edit(int $id): Response
+    #[Route('/{id}', name: 'edit', methods: ['PUT'])]
+    public function edit(int $id, Request $request): Response
     {
         $utilisateur = $this->repository->findOneBy(['id' => $id]);
 
         if (!$utilisateur) {
-            throw $this->createNotFoundException("No utilisateur found for {$id} id");
+            $utilisateur = $this->serializer->deserialize(
+                $request->getContent(), 
+                Utilisateur::class, 
+                'json',
+                [AbstractNormalizer::OBJECT_TO_POPULATE => $utilisateur]
+            );
+
+            $utilisateur->setprenom('Utilisateur prenom updated');
+            $utilisateur->setnom('Utilisateur nom updated');
+            $utilisateur->setpassword('Utilisateur password updated');
+            $this->manager->flush();
+
+            return New JsonResponse(data: null, status: Response::HTTP_NO_CONTENT);
         }
 
-        $utilisateur->setpassword('Utilisateur password updated');
-        $utilisateur->setnom('Utilisateur nom updated');
-        $utilisateur->setprenom('Utilisateur prenom updated');
-        $this->manager->flush();
-
-        return $this->redirectToRoute('app_api_utilisateur_show', ['id' => $utilisateur->getId()]);
+        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 
-    #[Route('/', name: 'delete', methods: ['DELETE'])]
+    #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
     public function delete(int $id): Response
     {
         $utilisateur = $this->repository->findOneBy(['id' => $id]);

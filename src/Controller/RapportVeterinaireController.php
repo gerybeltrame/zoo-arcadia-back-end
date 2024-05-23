@@ -13,6 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 #[Route('api/rapportVeterinaire', name: 'app_rapportVeterinaire_')]
 class RapportVeterinaireController extends AbstractController
@@ -20,7 +21,7 @@ class RapportVeterinaireController extends AbstractController
     public function __construct(private RapportVeterinaireRepository $repository, private EntityManagerInterface $manager, private SerializerInterface $serializer, private UrlGeneratorInterface $urlGenerator)
     {
     }
-    #[Route(name: 'new', methods: ['POST'])]
+    #[Route(methods: ['POST'])]
     public function new(Request $request): Response
     {
         $rapportVeterinaire = $this->serializer->deserialize($request->getContent(), RapportVeterinaire::class, 'json');
@@ -43,32 +44,40 @@ class RapportVeterinaireController extends AbstractController
     }
 
     #[Route('/{id}', name: 'show', methods: ['GET'])]
-    public function show(int $id, RapportVeterinaireRepository $repository): Response
+    public function show(int $id): Response
     {
-        $rapportveterinaire = $this->$repository->findOneBy(['id'=>$id]);
+        $rapportveterinaire = $this->repository->findOneBy(['id'=>$id]);
         if (!$rapportveterinaire) {
-            throw $this->createNotFoundException("No Rapport du vétérinaire found for {$id} id");
+            $responseData= $this->serializer->serialize($rapportveterinaire, 'json');
+
+            return new JsonResponse($responseData, Response::HTTP_OK, [], true);
         }
 
-        return $this->json(
-            ['message' => "A Rapport du vétérinaire was found : the {$rapportveterinaire->getdate()} for {$rapportveterinaire->getId()} id"], Response::HTTP_CREATED);
+        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 
     #[Route('/{id}', name: 'edit', methods: ['PUT'])]
-    public function edit(int $id): Response
+    public function edit(int $id, Request $request): Response
     {
         $rapportveterinaire = $this->repository->findOneBy(['id' => $id]);
 
         if (!$rapportveterinaire) {
-            throw $this->createNotFoundException("No Rapport du vétérinaire found for {$id} id");
-        }
-        
-        $rapportveterinaire->setdate('Rapport du vétérinaire date updated');
-        $rapportveterinaire->setdetail('Rapport du vétérinaire detail updated');
-        $this->manager->flush();
+            $rapportveterinaire = $this->serializer->deserialize(
+                $request->getContent(), 
+                RapportVeterinaire::class, 
+                'json',
+                [AbstractNormalizer::OBJECT_TO_POPULATE => $rapportveterinaire]
+            );
 
-        return $this->redirectToRoute('app_api_rapportveterinaire_show', ['id' => $rapportveterinaire->getId()]);
+            $rapportveterinaire->setdate(new DateTimeImmutable());
+            $rapportveterinaire->setdetail('Rapport du vétérinaire detail updated');
+            $this->manager->flush();
+
+            return New JsonResponse(data: null, status: Response::HTTP_NO_CONTENT);
+        }
+
+        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 

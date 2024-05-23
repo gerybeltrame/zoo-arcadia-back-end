@@ -12,6 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 #[Route('api/race', name: 'app_race_')]
 class RaceController extends AbstractController
@@ -19,7 +20,7 @@ class RaceController extends AbstractController
     public function __construct(private RaceRepository $repository, private EntityManagerInterface $manager, private SerializerInterface $serializer, private UrlGeneratorInterface $urlGenerator)
     {
     }
-    #[Route(name: 'new', methods: ['POST'])]
+    #[Route(methods: ['POST'])]
     public function new(Request $request): JsonResponse
     {
         $race = $this->serializer->deserialize($request->getContent(), Race::class, 'json');
@@ -41,32 +42,39 @@ class RaceController extends AbstractController
     }
 
     #[Route('/{id}', name: 'show', methods: ['GET'])]
-    public function show(int $id, RaceRepository $repository): Response
+    public function show(int $id): Response
     {
-        $race = $this->$repository->findOneBy(['id'=>$id]);
+        $race = $this->repository->findOneBy(['id'=>$id]);
         if (!$race) {
-            throw $this->createNotFoundException("No Race found for {$id} id");
+            $responseData= $this->serializer->serialize($race, 'json');
+
+            return new JsonResponse($responseData, Response::HTTP_OK, [], true);
         }
 
-        return $this->json(
-            ['message' => "A Race was found : {$race->getlabel()} for {$race->getId()} id"]
-        );
+        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 
     #[Route('/{id}', name: 'edit', methods: ['PUT'])]
-    public function edit(int $id): Response
+    public function edit(int $id, Request $request): Response
     {
         $race = $this->repository->findOneBy(['id' => $id]);
 
         if (!$race) {
-            throw $this->createNotFoundException("No Race found for {$id} id");
-        }
-        
-        $race->setlabel('Race label updated');
-        $this->manager->flush();
+            $race = $this->serializer->deserialize(
+                $request->getContent(), 
+                Race::class, 
+                'json',
+                [AbstractNormalizer::OBJECT_TO_POPULATE => $race]
+            );
 
-        return $this->redirectToRoute('app_api_race_show', ['id' => $race->getId()]);
+            $race->setlabel('Race label updated');
+            $this->manager->flush();
+
+            return New JsonResponse(data: null, status: Response::HTTP_NO_CONTENT);
+        }
+
+        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 
