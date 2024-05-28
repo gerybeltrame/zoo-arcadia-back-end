@@ -26,8 +26,7 @@ class SecurityController extends AbstractController
     }
 
     #[Route('/enregistrement', name: 'enregistrement', methods: ['POST'])]
-    /** 
-     * @OA\Post(
+    /** @OA\Post(
      *     path="/api/enregistrement",
      *     summary="Inscription d'un nouvel utilisateur",
      *     @OA\RequestBody(
