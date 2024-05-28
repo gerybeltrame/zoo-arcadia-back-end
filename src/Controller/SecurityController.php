@@ -3,6 +3,9 @@
 namespace App\Controller;
 
 use DateTimeImmutable;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,6 +26,31 @@ class SecurityController extends AbstractController
     }
 
     #[Route('/enregistrement', name: 'app_enregistrement', methods: ['POST'])]
+    /** 
+     * @OA\Post(
+     *     path="/api/enregistrement",
+     *     summary="Inscription d'un nouvel utilisateur",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Données de l'utilisateur à inscrire",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="email", type="string", example="adresse@email.com"),
+     *             @OA\Property(property="password", type="string", example="Mot de passe")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Utilisateur inscrit avec succès",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="utilisateur", type="string", example="Nom d'utilisateur"),
+     *             @OA\Property(property="apiToken", type="string", example="31a023e212f116124a36af14ea0c1c3806eb9378"),
+     *             @OA\Property(property="roles", type="array", @OA\Items(type="string", example="ROLE_USER"))
+     *         )
+     *     )
+     * )
+     */
     public function enregistrement(Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
         $utilisateur = $this->serializer->deserialize($request->getContent(), Utilisateur::class, 'json');
