@@ -54,7 +54,7 @@ class AvisController extends AbstractController
             return new JsonResponse($responseData, Response::HTTP_OK, [], true);
         }
 
-        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
+        return new JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 
@@ -65,8 +65,8 @@ class AvisController extends AbstractController
 
         if (!$avis) {
             $avis = $this->serializer->deserialize(
-                $request->getContent(), 
-                Avis::class, 
+                $request->getContent(),
+                Avis::class,
                 'json',
                 [AbstractNormalizer::OBJECT_TO_POPULATE => $avis]
             );
@@ -76,10 +76,10 @@ class AvisController extends AbstractController
             $avis->setIsVisible('Avis isVisible updated');
             $this->manager->flush();
 
-            return New JsonResponse(data: null, status: Response::HTTP_NO_CONTENT);
+            return new JsonResponse(data: null, status: Response::HTTP_NO_CONTENT);
         }
 
-        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
+        return new JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 

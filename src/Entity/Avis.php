@@ -20,7 +20,7 @@ class Avis
     private ?string $commentaire = null;
 
     #[ORM\Column]
-    private ?bool $IsVisible = null;
+    private ?bool $isVisible = null;
 
     public function getId(): ?int
     {

@@ -100,11 +100,8 @@ class Habitat
 
     public function removeComporte(comporte $comporte): static
     {
-        if ($this->comporte->removeElement($comporte)) {
-            // set the owning side to null (unless already changed)
-            if ($comporte->getHabitat() === $this) {
-                $comporte->setHabitat(null);
-            }
+        if ($this->comporte->removeElement($comporte) && $comporte->getHabitat() === $this) {
+            $comporte->setHabitat(null);
         }
 
         return $this;

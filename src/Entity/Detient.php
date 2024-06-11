@@ -54,11 +54,8 @@ class Detient
 
     public function removeHabitat(habitat $habitat): static
     {
-        if ($this->habitat->removeElement($habitat)) {
-            // set the owning side to null (unless already changed)
-            if ($habitat->getDetient() === $this) {
-                $habitat->setDetient(null);
-            }
+        if ($this->habitat->removeElement($habitat) && $habitat->getDetient() === $this) {
+            $habitat->setDetient(null);
         }
 
         return $this;

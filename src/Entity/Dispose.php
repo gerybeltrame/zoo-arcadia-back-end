@@ -71,11 +71,8 @@ class Dispose
 
     public function removeRace(race $race): static
     {
-        if ($this->race->removeElement($race)) {
-            // set the owning side to null (unless already changed)
-            if ($race->getDispose() === $this) {
-                $race->setDispose(null);
-            }
+        if ($this->race->removeElement($race) && $race->getDispose() === $this) {
+            $race->setDispose(null);
         }
 
         return $this;

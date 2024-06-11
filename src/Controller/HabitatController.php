@@ -54,7 +54,7 @@ class HabitatController extends AbstractController
             return new JsonResponse($responseData, Response::HTTP_OK, [], true);
         }
 
-        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
+        return new JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 
@@ -65,8 +65,8 @@ class HabitatController extends AbstractController
 
         if (!$habitat) {
             $habitat = $this->serializer->deserialize(
-                $request->getContent(), 
-                Habitat::class, 
+                $request->getContent(),
+                Habitat::class,
                 'json',
                 [AbstractNormalizer::OBJECT_TO_POPULATE => $habitat]
             );
@@ -76,10 +76,10 @@ class HabitatController extends AbstractController
             $habitat->setcommentaireHabitat('Habitat commentaireHabitat updated');
             $this->manager->flush();
 
-            return New JsonResponse(data: null, status: Response::HTTP_NO_CONTENT);
+            return new JsonResponse(data: null, status: Response::HTTP_NO_CONTENT);
         }
 
-        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
+        return new JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 

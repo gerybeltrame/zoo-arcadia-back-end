@@ -53,7 +53,7 @@ class RapportVeterinaireController extends AbstractController
             return new JsonResponse($responseData, Response::HTTP_OK, [], true);
         }
 
-        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
+        return new JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 
@@ -64,8 +64,8 @@ class RapportVeterinaireController extends AbstractController
 
         if (!$rapportveterinaire) {
             $rapportveterinaire = $this->serializer->deserialize(
-                $request->getContent(), 
-                RapportVeterinaire::class, 
+                $request->getContent(),
+                RapportVeterinaire::class,
                 'json',
                 [AbstractNormalizer::OBJECT_TO_POPULATE => $rapportveterinaire]
             );
@@ -74,10 +74,10 @@ class RapportVeterinaireController extends AbstractController
             $rapportveterinaire->setdetail('Rapport du vétérinaire detail updated');
             $this->manager->flush();
 
-            return New JsonResponse(data: null, status: Response::HTTP_NO_CONTENT);
+            return new JsonResponse(data: null, status: Response::HTTP_NO_CONTENT);
         }
 
-        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
+        return new JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 

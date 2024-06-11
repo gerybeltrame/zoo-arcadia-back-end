@@ -53,7 +53,7 @@ class UtilisateurController extends AbstractController
             return new JsonResponse($responseData, Response::HTTP_OK, [], true);
         }
 
-        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
+        return new JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 
@@ -64,8 +64,8 @@ class UtilisateurController extends AbstractController
 
         if (!$utilisateur) {
             $utilisateur = $this->serializer->deserialize(
-                $request->getContent(), 
-                Utilisateur::class, 
+                $request->getContent(),
+                Utilisateur::class,
                 'json',
                 [AbstractNormalizer::OBJECT_TO_POPULATE => $utilisateur]
             );
@@ -75,10 +75,10 @@ class UtilisateurController extends AbstractController
             $utilisateur->setpassword('Utilisateur password updated');
             $this->manager->flush();
 
-            return New JsonResponse(data: null, status: Response::HTTP_NO_CONTENT);
+            return new JsonResponse(data: null, status: Response::HTTP_NO_CONTENT);
         }
 
-        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
+        return new JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 

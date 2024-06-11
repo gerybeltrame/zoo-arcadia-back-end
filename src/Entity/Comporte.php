@@ -55,11 +55,8 @@ class Comporte
 
     public function removeImage(Image $image): static
     {
-        if ($this->images->removeElement($image)) {
-            // set the owning side to null (unless already changed)
-            if ($image->getComporte() === $this) {
-                $image->setComporte(null);
-            }
+        if ($this->images->removeElement($image) && $image->getComporte() === $this) {
+            $image->setComporte(null);
         }
 
         return $this;

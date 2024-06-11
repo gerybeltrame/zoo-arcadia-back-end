@@ -113,11 +113,9 @@ class Animal
 
     public function removeObtient(obtient $obtient): static
     {
-        if ($this->obtient->removeElement($obtient)) {
-            // set the owning side to null (unless already changed)
-            if ($obtient->getAnimal() === $this) {
-                $obtient->setAnimal(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->obtient->removeElement($obtient) && $obtient->getAnimal() === $this) {
+            $obtient->setAnimal(null);
         }
 
         return $this;

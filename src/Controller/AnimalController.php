@@ -54,7 +54,7 @@ class AnimalController extends AbstractController
             return new JsonResponse($responseData, Response::HTTP_OK, [], true);
         }
 
-        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
+        return new JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
     }
 
     #[Route('/{id}', name: 'edit', methods: ['PUT'])]
@@ -64,8 +64,8 @@ class AnimalController extends AbstractController
 
         if (!$animal) {
             $animal = $this->serializer->deserialize(
-                $request->getContent(), 
-                Animal::class, 
+                $request->getContent(),
+                Animal::class,
                 'json',
                 [AbstractNormalizer::OBJECT_TO_POPULATE => $animal]
             );
@@ -74,10 +74,10 @@ class AnimalController extends AbstractController
             $animal->setetat('Animal etat updated');
             $this->manager->flush();
 
-            return New JsonResponse(data: null, status: Response::HTTP_NO_CONTENT);
+            return new JsonResponse(data: null, status: Response::HTTP_NO_CONTENT);
         }
 
-        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
+        return new JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
     }
 
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]

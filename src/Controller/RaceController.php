@@ -51,7 +51,7 @@ class RaceController extends AbstractController
             return new JsonResponse($responseData, Response::HTTP_OK, [], true);
         }
 
-        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
+        return new JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 
@@ -62,8 +62,8 @@ class RaceController extends AbstractController
 
         if (!$race) {
             $race = $this->serializer->deserialize(
-                $request->getContent(), 
-                Race::class, 
+                $request->getContent(),
+                Race::class,
                 'json',
                 [AbstractNormalizer::OBJECT_TO_POPULATE => $race]
             );
@@ -71,10 +71,10 @@ class RaceController extends AbstractController
             $race->setlabel('Race label updated');
             $this->manager->flush();
 
-            return New JsonResponse(data: null, status: Response::HTTP_NO_CONTENT);
+            return new JsonResponse(data: null, status: Response::HTTP_NO_CONTENT);
         }
 
-        return New JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
+        return new JsonResponse(data: null, status: Response::HTTP_NOT_FOUND);
 
     }
 
