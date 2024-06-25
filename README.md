@@ -16,7 +16,7 @@ Pour vérifier les éléments requit par par Symfony taper la commande suivante:
 
 D'abord, il vous faut créer une clef SSH ou GPG sur votre compte Github ou Gitlab.
 
-Il faut ensuite cloner le repository
+Il faut ensuite cloner le repository:
 - `$ git clone 'git@github.com:gerybeltrame/zoo-arcadia-back-end.git'`
 
 Puis créez des fichiers `.env.{environnement}.local` selon votre configuration.
