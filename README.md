@@ -30,4 +30,4 @@ Pour finir, paramètrez votre DATABASE_URL dans les fichiers `.env.{environnemen
 Il ne vous restera plus qu'à lancer votre serveur symfony:
 - `symfony server:start`
 
-Et voilà, vous devriez avoir la partie Back-end du projet zoo arcadia installé et fonctionnel.
+Et voilà, vous devriez avoir la partie Back-end du projet zoo arcadia installée et fonctionnelle.
