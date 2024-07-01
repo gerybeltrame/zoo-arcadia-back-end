@@ -14,11 +14,11 @@ class Redige
     private ?int $id = null;
 
     #[ORM\OneToOne(inversedBy: 'redige', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?rapportveterinaire $rapportveterinaire = null;
 
     #[ORM\ManyToOne(inversedBy: 'redige')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Utilisateur $utilisateur = null;
 
     public function getId(): ?int

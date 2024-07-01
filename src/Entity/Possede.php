@@ -19,9 +19,11 @@ class Possede
      * @var Collection<int, role>
      */
     #[ORM\OneToMany(targetEntity: role::class, mappedBy: 'possede', orphanRemoval: true)]
+    #[ORM\JoinColumn(nullable: true)]
     private Collection $role;
 
     #[ORM\OneToOne(mappedBy: 'possede', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Utilisateur $utilisateur = null;
 
     public function __construct()
