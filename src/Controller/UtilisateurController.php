@@ -23,7 +23,6 @@ class UtilisateurController extends AbstractController
     #[Route(methods: ['POST'])]
     public function new(Request $request): JsonResponse
     {
-        $utilisateur = $this->serializer->deserialize($request->getContent(), Utilisateur::class, 'json');
         $utilisateur = new Utilisateur();
         $utilisateur->setnom('');
         $utilisateur->setprenom('');
